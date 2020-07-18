@@ -29,7 +29,8 @@ public class Erlang extends JpsSdkType<JpsDummyElement> implements JpsElementTyp
 
     @NotNull
     public static String getExecutableFileName(@NotNull String executableName) {
-        return SystemInfo.isWindows ? executableName + ".exe" : executableName;
+        return executableName;
+//        return SystemInfo.isWindows ? executableName + ".exe" : executableName;
     }
 
     @NotNull

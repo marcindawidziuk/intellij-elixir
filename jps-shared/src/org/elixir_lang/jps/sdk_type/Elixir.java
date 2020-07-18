@@ -43,6 +43,7 @@ public class Elixir extends JpsSdkType<SdkProperties> implements JpsElementTypeW
     String homePath = ensureHomePath(maybeHomePath);
 
     return mixFile(homePath).getPath();
+//      return " mix";
   }
 
   @NotNull
@@ -66,7 +67,7 @@ public class Elixir extends JpsSdkType<SdkProperties> implements JpsElementTypeW
 
   @NotNull
   private static File getSdkExecutable(@NotNull String sdkHome, @NotNull String command){
-    return new File(new File(sdkHome, "bin").getAbsolutePath(), getExecutableFileName(command));
+    return new File(new File(sdkHome, "bin").getAbsolutePath(), getExecutableFileName(sdkHome, command));
   }
 
   @NotNull
@@ -75,8 +76,17 @@ public class Elixir extends JpsSdkType<SdkProperties> implements JpsElementTypeW
   }
 
   @NotNull
-  public static String getExecutableFileName(@NotNull String executableName){
-    return SystemInfo.isWindows ? executableName + ".bat" : executableName;
+  public static String getExecutableFileName(@NotNull String path, @NotNull String executableName){
+    if (SystemInfo.isWindows){
+      if (path.startsWith("//wsl$/") || path.startsWith("\\\\wsl$\\"))
+        return executableName;
+      else
+        return executableName + ".bat";
+
+    }
+    return  executableName;
+//    return SystemInfo.isWindows ?
+//            executableName + ".bat" : executableName;
   }
 
   @NotNull

@@ -120,16 +120,17 @@ class Node(
                     .let { OKError.from(it) }
                     .let { it as org.elixir_lang.debugger.node.ok_error.OK }
 
-    private fun interpretRequest(sdkPaths: Iterable<String>, doNotInterpretPatterns: Iterable<String>) =
-            OtpErlangTuple(arrayOf(
-                    OtpErlangAtom("interpret"),
-                    otpErlangMapOf(
-                            OtpErlangAtom("reject_elixir_module_name_patterns") to
-                                    doNotInterpretPatterns.toOtpErlangList(),
-                            OtpErlangAtom("sdk_paths") to
-                                    sdkPaths.toOtpErlangList()
-                    )
-            ))
+    private fun interpretRequest(sdkPaths: Iterable<String>, doNotInterpretPatterns: Iterable<String>): OtpErlangTuple {
+        return OtpErlangTuple(arrayOf(
+                OtpErlangAtom("interpret"),
+                otpErlangMapOf(
+                        OtpErlangAtom("reject_elixir_module_name_patterns") to
+                                doNotInterpretPatterns.toOtpErlangList(),
+                        OtpErlangAtom("sdk_paths") to
+                                sdkPaths.map { it.replace('/', '\\') }.toOtpErlangList()
+                )
+        ))
+    }
 
     fun interpreted(): List<InterpretedModule> =
             OtpErlangAtom("interpreted")

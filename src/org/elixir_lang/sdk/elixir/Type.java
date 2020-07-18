@@ -1,5 +1,6 @@
 package org.elixir_lang.sdk.elixir;
 
+import com.intellij.execution.wsl.WSLUtil;
 import com.intellij.facet.FacetManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -22,6 +23,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiElement;
 import gnu.trove.THashSet;
+import kotlin.text.MatchGroup;
+import kotlin.text.MatchResult;
+import kotlin.text.Regex;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.elixir_lang.Facet;
@@ -471,20 +475,53 @@ public class Type extends org.elixir_lang.sdk.erlang_dependent.Type {
 
                 release = null;
             } else {
-                release = transformStdoutLine(
-                        Release::fromString,
-                        STANDARD_TIMEOUT,
-                        sdkHome,
-                        elixir.getAbsolutePath(),
-                        "-e",
-                        "System.version |> IO.puts"
-                );
+                //If WSL
+                if (true){
+                    release = transformStdoutLine(
+                            Release::fromString,
+                            STANDARD_TIMEOUT,
+                            sdkHome,
+                            elixir.getAbsolutePath(),
+                            "-e",
+                            "System.version |> IO.puts"
+                    );
+                }else{
+
+                    release = transformStdoutLine(
+                            Release::fromString,
+                            STANDARD_TIMEOUT,
+                            sdkHome,
+                            fromWsl(elixir.getAbsolutePath()),
+                            "-e",
+                            "System.version |> IO.puts"
+                    );
+                }
             }
 
             mySdkHomeToReleaseCache.put(versionCacheKey, release);
         }
 
         return release;
+    }
+
+    private String fromWsl(String wslPath){
+        if (!WSLUtil.hasAvailableDistributions()){
+            return wslPath;
+        }
+
+
+        //TODO: if Windows if WSL
+//        "\\\\wsl$\\Ubuntu-20.04\\usr\\lib\\elixir";
+
+        Regex regex = new Regex("\\\\\\\\wsl\\$\\\\([a-zA-Z0-9-.]*)(.*)");
+        MatchResult match = regex.matchEntire(wslPath);
+        if (match != null) {
+            MatchGroup linuxPath = match.getGroups().get(2);
+            return "wsl " + linuxPath.getValue().replace('\\', '/');
+        }
+
+        return wslPath;
+//        return "wsl /usr/lib/elixir/bin/elixir";
     }
 
     @Nullable

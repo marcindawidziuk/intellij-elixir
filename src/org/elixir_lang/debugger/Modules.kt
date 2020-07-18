@@ -1,5 +1,6 @@
 package org.elixir_lang.debugger
 
+import org.elixir_lang.utils.getLinuxPathFromWslWindowsMountedPath
 import java.io.File
 import java.io.IOException
 
@@ -32,7 +33,7 @@ object Modules {
     fun erlArgumentList(mix: Boolean = false): List<String> =
             listOf("-eval", "application:ensure_all_started(elixir)") +
                     copy(mix).flatMap { file ->
-                        listOf("-eval", "'Elixir.Code':require_file(<<\"${file.path}\">>)")
+                        listOf("-eval", "'Elixir.Code':require_file(<<\"${file.path.getLinuxPathFromWslWindowsMountedPath()}\">>)")
                     } + if (mix) {
                 emptyList()
             } else {

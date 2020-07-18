@@ -3,6 +3,7 @@ package org.elixir_lang.iex
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.openapi.projectRoots.Sdk
 import org.elixir_lang.jps.sdk_type.Elixir
+import org.elixir_lang.utils.getLinuxPathFromWslWindowsMountedPath
 
 object Mix {
     fun commandLine(
@@ -21,6 +22,6 @@ object Mix {
 
     private fun addMix(commandLine: GeneralCommandLine, sdk: Sdk) {
         val mixPath = Elixir.mixPath(sdk.homePath)
-        commandLine.addParameters("-S", mixPath)
+        commandLine.addParameters("-S", mixPath.getLinuxPathFromWslWindowsMountedPath()!!)
     }
 }

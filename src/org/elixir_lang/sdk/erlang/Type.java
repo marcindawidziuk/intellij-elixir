@@ -239,6 +239,7 @@ public class Type extends SdkType {
         if (cachedRelease != null) {
             release = cachedRelease;
         } else {
+            //TODO: wsl
             File erl = Erlang.getByteCodeInterpreterExecutable(sdkHome);
 
             if (!erl.canExecute()) {
@@ -253,7 +254,8 @@ public class Type extends SdkType {
                 LOGGER.warn(messageBuilder.toString());
             } else {
                 try {
-                    ProcessOutput output = org.elixir_lang.sdk.ProcessOutput.getProcessOutput(
+
+                    ProcessOutput output = org.elixir_lang.sdk.ProcessOutput.getProcessOutputWsl(
                             10 * 1000,
                             sdkHome,
                             erl.getAbsolutePath(),
@@ -261,6 +263,14 @@ public class Type extends SdkType {
                             "-eval",
                             PRINT_VERSION_INFO_EXPRESSION
                     );
+//                    ProcessOutput output = org.elixir_lang.sdk.ProcessOutput.getProcessOutput(
+//                            10 * 1000,
+//                            sdkHome,
+//                            erl.getAbsolutePath(),
+//                            "-noshell",
+//                            "-eval",
+//                            PRINT_VERSION_INFO_EXPRESSION
+//                    );
 
                     if (!(output.getExitCode() != 0 || output.isCancelled() || output.isTimeout())) {
                         release = parseSdkVersion(output.getStdoutLines());

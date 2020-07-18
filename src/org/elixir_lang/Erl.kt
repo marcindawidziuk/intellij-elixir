@@ -4,6 +4,7 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.OrderRootType
 import org.elixir_lang.jps.sdk_type.Erlang
+import org.elixir_lang.utils.getLinuxPathFromWslWindowsMountedPath
 import java.io.FileNotFoundException
 
 object Erl {
@@ -12,6 +13,7 @@ object Erl {
      */
     fun commandLine(pty: Boolean, environment: Map<String, String>, workingDirectory: String?, erlangSdk: Sdk):
             GeneralCommandLine {
+        //TODO: Wsl?
         val commandLine = commandLine(pty, environment, workingDirectory)
         setErl(commandLine, erlangSdk)
 
@@ -19,7 +21,7 @@ object Erl {
     }
 
     fun prependCodePaths(generalCommandLine: GeneralCommandLine, ebinDirectories: kotlin.collections.List<String>) {
-        ebinDirectories.forEach { generalCommandLine.addParameters("-pa", it) }
+        ebinDirectories.forEach { generalCommandLine.addParameters("-pa", it.getLinuxPathFromWslWindowsMountedPath()) }
     }
 
     /**
@@ -27,7 +29,9 @@ object Erl {
      */
     private fun exePath(erlangSdk: Sdk): String =
             erlangSdk.homePath?.let {
-                Erlang.homePathToErlExePath(it)
+//                if wsl
+                "wsl"
+//                Erlang.homePathToErlExePath(it)
             } ?: throw FileNotFoundException("Erlang SDK home path is not set")
 
     /**
@@ -59,6 +63,11 @@ object Erl {
      */
     private fun setErl(commandLine: GeneralCommandLine, erlangSdk: Sdk) {
         commandLine.exePath = exePath(erlangSdk)
+        erlangSdk.homePath?.let {
+            val param = Erlang.homePathToErlExePath(it)?.getLinuxPathFromWslWindowsMountedPath()?.let{
+                commandLine.addParameter(it);
+            };
+        }
         prependCodePaths(commandLine, erlangSdk)
     }
 }

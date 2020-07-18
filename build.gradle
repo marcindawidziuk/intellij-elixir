@@ -242,7 +242,7 @@ task getQuoterDeps(dependsOn: getQuoter) {
 task releaseQuoter(dependsOn: getQuoterDeps) {
   doLast {
     def file = new File(quoterExe)
-
+i
     if (!file.canExecute()) {
       exec {
         workingDir quoterUnzippedPath
